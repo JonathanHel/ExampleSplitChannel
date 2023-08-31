@@ -1,0 +1,82 @@
+buildscript {
+
+	ext.getVariable = { name -> System.env[name] != null ? System.env[name] : System.properties[name] }
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("io.freefair.gradle:lombok-plugin:${lombokVersion}")
+	}
+}
+
+apply plugin: "java"
+apply plugin: "io.freefair.lombok"
+apply plugin: "io.spring.dependency-management"
+apply plugin: "org.springframework.boot"
+apply plugin: "jacoco"
+apply plugin: "maven-publish"
+
+group = 'example'
+sourceCompatibility = targetCompatibility = '17'
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
+dependencies {
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-integration'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-configuration-processor'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-webflux'
+	implementation group: 'org.springframework.boot', name: 'spring-boot-starter-data-mongodb-reactive'
+	implementation group: 'org.springframework.integration', name:'spring-integration-kafka'
+
+	implementation group: 'io.micrometer', name:'micrometer-registry-prometheus'
+	implementation group: 'io.micrometer', name: 'micrometer-tracing-bridge-brave'
+	implementation group: 'io.zipkin.reporter2', name: 'zipkin-reporter-brave'
+	implementation group: 'io.projectreactor', name: 'reactor-core-micrometer'
+	implementation group: 'org.springdoc', name: 'springdoc-openapi-starter-webflux-api', version: "$springDocVersion"
+	implementation group: 'commons-io', name: 'commons-io', version: "$commonsioVersion"
+
+	testImplementation group: 'org.springframework.boot', name: 'spring-boot-starter-test'
+	testImplementation group: 'org.springframework.integration', name: 'spring-integration-test'
+	testImplementation group: 'org.springframework.kafka', name: 'spring-kafka-test'
+	testImplementation group: 'commons-codec', name: 'commons-codec', version: '1.16.0'
+	testImplementation group: 'de.flapdoodle.embed', name: 'de.flapdoodle.embed.mongo', version: "$flapDoodleMongoVersion"
+	testImplementation group: 'org.jeasy', name: 'easy-random-core', version: "$easyRandomVersion"
+	testImplementation group: 'org.awaitility', name: 'awaitility', version: "$awaitilityVersion"
+	testImplementation group: 'com.fasterxml.jackson.module', name: 'jackson-modules-java8', version: '2.15.2'
+	testImplementation group: 'io.projectreactor', name: 'reactor-test'
+
+	testImplementation group: 'org.testcontainers', name: 'mongodb'
+	testImplementation group: 'org.springframework.boot', name: 'spring-boot-testcontainers'
+	testImplementation group: 'org.testcontainers', name: 'junit-jupiter'
+	testImplementation group: 'org.testcontainers', name: 'kafka'
+
+	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+	testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+}
+
+compileJava {
+	options.warnings = true
+	options.deprecation = true
+	options.compilerArgs += ["-Xlint:unchecked"]
+}
+
+test {
+	useJUnitPlatform()
+}
+
+bootJar {
+	dependsOn test
+
+	from('src/main/resources') {
+		include '*.json'
+	}
+}
+

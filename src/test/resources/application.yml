@@ -1,0 +1,25 @@
+logging:
+  level:
+    org.apache.kafka.clients.producer.ProducerConfig: WARN
+    org.apache.kafka.clients.consumer.internals.abstractcoordinator: WARN
+    org.apache.kafka.common.utils.AppInfoParser: WARN
+    org.apache.kafka.clients: WARN
+    org.springframework.integration: DEBUG
+
+
+spring:
+  application:
+    name: example
+  profiles:
+    active: test
+  kafka:
+    consumer:
+      group-id: example-service
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    producer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      compression-type: gzip
