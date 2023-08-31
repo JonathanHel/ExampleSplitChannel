@@ -2,6 +2,7 @@ package example.powertrain.flow;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 
 import example.powertrain.properties.ServiceProperties;
 import java.util.UUID;
@@ -65,6 +66,9 @@ class ImportFlowTest {
     @SpyBean
     TombstoneHandler tombstoneHandler;
 
+    @SpyBean
+    DebugUnexpectedHandler unexpectedHandler;
+
 
 
     @Test
@@ -76,6 +80,7 @@ class ImportFlowTest {
         });
 
         Mockito.verify(debugHandler, timeout(10_000).times(100)).handle(any(), any());
+        Mockito.verify(unexpectedHandler, timeout(10_000).times(0)).handle(any(), any());
         Mockito.verify(tombstoneHandler, timeout(10_000).times(0)).handle(any(), any());
         Mockito.verify(secondHandler, timeout(10_000).times(100)).handle(any(), any());
 
