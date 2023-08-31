@@ -30,6 +30,8 @@ public class ImportFlow {
 
     DebugSecondHandler secondHandler;
 
+    DebugUnexpectedHandler unexpectedHandler;
+
     TombstoneHandler tombstoneHandler;
 
     @Bean
@@ -60,15 +62,6 @@ public class ImportFlow {
     @Bean
     IntegrationFlow someSplittingFlow() {
         return IntegrationFlow.from("someSplittingFlow.input")
-            .aggregate(aggregatorSpec ->
-                aggregatorSpec
-                    .releaseStrategy(new MessageCountReleaseStrategy(50))
-                    .sendPartialResultOnExpiry(true)
-                    .groupTimeout(1000L)
-                    .expireGroupsUponCompletion(true)
-                    .correlationStrategy(message -> "")
-            )
-            .split()
             .handle(debugHandler)
             .channel(sendToFlow().getInputChannel())
             .get();
@@ -80,7 +73,7 @@ public class ImportFlow {
         return IntegrationFlow.from("processTombstoneFlow.input")
             .handle(tombstoneHandler)
             .channel(sendToFlow().getInputChannel())
-         //   .handle((m,h) -> m)
+            .handle(unexpectedHandler)
             // .nullChannel()
             .handle(m -> {})
             .get();
